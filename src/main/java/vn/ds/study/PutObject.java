@@ -18,15 +18,20 @@
 package vn.ds.study;
 
 import org.apache.synapse.MessageContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.carbon.connector.core.AbstractConnector;
 import org.wso2.carbon.connector.core.ConnectException;
 
 public class PutObject extends AbstractConnector {
 
+    private static final Logger LOGGER= LoggerFactory.getLogger(PutObject.class);
+
     @Override
     public void connect(MessageContext messageContext) throws ConnectException {
         String address = (String) getParameter(messageContext, "address");
         String filename = (String) getParameter(messageContext, "filename");
-        log.info("Put object " + filename + " to OS address " + address);
+        LOGGER.info("Put object {} to OS address {}", filename, address);
+
     }
 }
