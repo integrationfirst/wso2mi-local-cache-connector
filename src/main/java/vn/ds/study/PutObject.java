@@ -18,29 +18,74 @@
 package vn.ds.study;
 
 import io.minio.MinioClient;
+import io.minio.ObjectWriteResponse;
+import io.minio.PutObjectArgs;
+import io.minio.errors.*;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.synapse.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.connector.core.ConnectException;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 public class PutObject extends MinioAgent {
 
     private static final Logger LOGGER= LoggerFactory.getLogger(PutObject.class);
 
     @Override
-    public void connect(MessageContext messageContext) throws ConnectException {
+    public void connect(final MessageContext messageContext) throws ConnectException {
+        super.connect(messageContext);
+    }
 
+    @Override
+    public void execute(MessageContext messageContext) throws ConnectException {
 
-        String address = (String) getParameter(messageContext, "address");
-        String filename = (String) getParameter(messageContext, "filename");
-        String accessKey = (String) getParameter(messageContext, "accessKey");
-        String secretKey = (String) getParameter(messageContext, "secretKey");
+        String address = getParameterAsString( "address");
+        String bucket =  getParameterAsString("bucket");
+        String filename =  getParameterAsString( "filename");
+        String accessKey =  getParameterAsString( "accessKey");
+        String secretKey =  getParameterAsString( "secretKey");
 
-        MinioClient client = getClient(address, "minio","minio123");
         LOGGER.info("Put object {} to OS address {}", filename, address);
+        MinioClient client = getClient(address, accessKey,secretKey);
 
         if (client!=null){
             LOGGER.info("Successfully login into OS");
+            String fileContent = getParameterAsString("fileContent");
+
+            if (!StringUtils.isEmpty(fileContent)){
+                try {
+                    ObjectWriteResponse response = client.putObject(
+                            PutObjectArgs.builder().bucket(bucket).object(filename)
+                                    .stream(new ByteArrayInputStream(fileContent.getBytes()), -1, 10485760).build()
+                                                                              );
+                    LOGGER.info("Successfully putObject into OS");
+                } catch (ErrorResponseException e) {
+                    e.printStackTrace();
+                } catch (InsufficientDataException e) {
+                    e.printStackTrace();
+                } catch (InternalException e) {
+                    e.printStackTrace();
+                } catch (InvalidKeyException e) {
+                    e.printStackTrace();
+                } catch (InvalidResponseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (NoSuchAlgorithmException e) {
+                    e.printStackTrace();
+                } catch (ServerException e) {
+                    e.printStackTrace();
+                } catch (XmlParserException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
         }else {
             LOGGER.info("Failed to login into OS with access: {} and secret: {}", accessKey, secretKey);
         }

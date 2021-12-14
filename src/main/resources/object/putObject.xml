@@ -17,10 +17,11 @@
 -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="putObject">
     <parameter name="address"/>
+    <parameter name="bucket"/>
     <parameter name="filename"/>
     <parameter name="accessKey"/>
     <parameter name="secretKey"/>
-    
+    <parameter name="fileContent"/>
     <sequence>
         <class name="vn.ds.study.PutObject"/>
     </sequence>

@@ -1,7 +1,9 @@
 package vn.ds.study;
 
 import io.minio.MinioClient;
+import org.apache.synapse.MessageContext;
 import org.wso2.carbon.connector.core.AbstractConnector;
+import org.wso2.carbon.connector.core.ConnectException;
 
 public abstract class MinioAgent extends AbstractConnector {
 
@@ -14,4 +16,22 @@ public abstract class MinioAgent extends AbstractConnector {
 
         return minioClient;
     }
+    
+    private MessageContext context;
+    
+    @Override
+    public void connect(final MessageContext messageContext) throws ConnectException {
+        this.context=messageContext;
+        execute(messageContext);
+    }
+
+    protected <T> T getParameter(String parameterName, Class<T> type){
+        return (T) getParameter(context,parameterName);
+    }
+    protected String getParameterAsString(String parameterName){
+        return getParameter(parameterName,String.class);
+    }
+
+    protected abstract void execute(final MessageContext messageContext) throws ConnectException;
+
 }
