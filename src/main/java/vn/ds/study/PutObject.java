@@ -47,85 +47,60 @@ public class PutObject extends MinioAgent {
         LOGGER.info("Put object {} to OS address {}", filename, address);
         MinioClient client = getClient(address, accessKey,secretKey);
 
-        if (client!=null){
-            LOGGER.info("Successfully login into OS");
-            String fileContent = getParameterAsString("fileContent");
-            String filePath = getParameterAsString("filePath");
-
-            if (!StringUtils.isEmpty(fileContent)){
-                try {
-                    ObjectWriteResponse response = client.putObject(
-                            PutObjectArgs.builder().bucket(bucket).object(filename)
-                                    .stream(new ByteArrayInputStream(fileContent.getBytes()), -1, 10485760).build()
-                                                                              );
-                    LOGGER.info("Successfully putObject into OS");
-                } catch (ErrorResponseException e) {
-                    e.printStackTrace();
-                } catch (InsufficientDataException e) {
-                    e.printStackTrace();
-                } catch (InternalException e) {
-                    e.printStackTrace();
-                } catch (InvalidKeyException e) {
-                    e.printStackTrace();
-                } catch (InvalidResponseException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (ServerException e) {
-                    e.printStackTrace();
-                } catch (XmlParserException e) {
-                    e.printStackTrace();
-                }
-
-            }else if (!StringUtils.isEmpty(filePath)){
-                InputStream is =null;
-                try {
-                    LOGGER.info("Put file {} to OS",filePath);
-                    is = new FileInputStream(new File(filePath));
-                    try {
-                        ObjectWriteResponse response = client.putObject(
-                                PutObjectArgs.builder().bucket(bucket).object(filename)
-                                        .stream(is, -1, 10485760).build()
-                                                                       );
-                        LOGGER.info("Successfully putObject into OS from filePath");
-                    } catch (ErrorResponseException e) {
-                        e.printStackTrace();
-                    } catch (InsufficientDataException e) {
-                        e.printStackTrace();
-                    } catch (InternalException e) {
-                        e.printStackTrace();
-                    } catch (InvalidKeyException e) {
-                        e.printStackTrace();
-                    } catch (InvalidResponseException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    } catch (ServerException e) {
-                        e.printStackTrace();
-                    } catch (XmlParserException e) {
-                        e.printStackTrace();
-                    }
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                finally {
-                    if (is!=null){
-                        try {
-                            is.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-
-        }else {
+        if (client == null){
             LOGGER.info("Failed to login into OS with access: {} and secret: {}", accessKey, secretKey);
+            return;
         }
 
+        LOGGER.info("Successfully login into OS");
+        String fileContent = getParameterAsString("fileContent");
+        String filePath = getParameterAsString("filePath");
+
+        InputStream is =null;
+        ObjectWriteResponse rsp = null;
+        try {
+            if (!StringUtils.isEmpty(fileContent)){
+
+                is =new ByteArrayInputStream(fileContent.getBytes());
+                rsp = putObject(is,client,bucket,filename);
+                LOGGER.info("Successfully putObject into OS");
+            } else if (!StringUtils.isEmpty(filePath)){
+
+                LOGGER.info("Put file {} to OS",filePath);
+                is = new FileInputStream(new File(filePath));
+                rsp = putObject(is, client, bucket, filename);
+                LOGGER.info("Successfully putObject into OS from filePath");
+            }
+        } catch (FileNotFoundException e) {
+            LOGGER.error("Could not find {}", filePath, e);
+        }
+        finally {
+            if (is!=null){
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if (rsp == null){
+            return;
+        }
+        LOGGER.info("putObject result object: {}; versionId: {}", rsp.object(), rsp.versionId());
+        messageContext.getContextEntries().put("object",rsp.object());
+        messageContext.getContextEntries().put("versionId",rsp.versionId());
+    }
+
+    private ObjectWriteResponse putObject(final InputStream is, final MinioClient client, final String bucket, final String filename) {
+        try {
+            return client.putObject(
+                    PutObjectArgs.builder().bucket(bucket).object(filename)
+                            .stream(is, -1, 10485760).build()
+                                                           );
+        } catch (Exception e) {
+            LOGGER.error("Failed to execute putObject", e);
+        }
+
+        return null;
     }
 }
