@@ -37,11 +37,6 @@ public class PutObject extends MinioAgent {
     private static final Logger LOGGER= LoggerFactory.getLogger(PutObject.class);
 
     @Override
-    public void connect(final MessageContext messageContext) throws ConnectException {
-        super.connect(messageContext);
-    }
-
-    @Override
     public void execute(MessageContext messageContext) throws ConnectException {
 
         String address = getParameterAsString( "address");

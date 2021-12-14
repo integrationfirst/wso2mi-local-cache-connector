@@ -20,7 +20,7 @@ public abstract class MinioAgent extends AbstractConnector {
     private MessageContext context;
     
     @Override
-    public void connect(final MessageContext messageContext) throws ConnectException {
+    public final void connect(final MessageContext messageContext) throws ConnectException {
         this.context=messageContext;
         execute(messageContext);
     }
