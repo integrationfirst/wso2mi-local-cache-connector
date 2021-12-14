@@ -64,8 +64,18 @@
         "name": "fileContent",
         "displayName": "File Content",
         "inputType": "stringOrExpression",
-        "required": "true",
-        "helpTip": "File content",
+        "required": "false",
+        "helpTip": "File Content",
+        "validation": "nameWithoutSpecialCharactors"
+      }
+    },{
+      "type": "attribute",
+      "value": {
+        "name": "filePath",
+        "displayName": "File Path",
+        "inputType": "stringOrExpression",
+        "required": "false",
+        "helpTip": "Path to local file that expected to be upload to OS",
         "validation": "nameWithoutSpecialCharactors"
       }
     }

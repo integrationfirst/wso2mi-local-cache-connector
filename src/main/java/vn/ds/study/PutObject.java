@@ -27,8 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.connector.core.ConnectException;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -51,6 +50,7 @@ public class PutObject extends MinioAgent {
         if (client!=null){
             LOGGER.info("Successfully login into OS");
             String fileContent = getParameterAsString("fileContent");
+            String filePath = getParameterAsString("filePath");
 
             if (!StringUtils.isEmpty(fileContent)){
                 try {
@@ -79,6 +79,48 @@ public class PutObject extends MinioAgent {
                     e.printStackTrace();
                 }
 
+            }else if (!StringUtils.isEmpty(filePath)){
+                InputStream is =null;
+                try {
+                    LOGGER.info("Put file {} to OS",filePath);
+                    is = new FileInputStream(new File(filePath));
+                    try {
+                        ObjectWriteResponse response = client.putObject(
+                                PutObjectArgs.builder().bucket(bucket).object(filename)
+                                        .stream(is, -1, 10485760).build()
+                                                                       );
+                        LOGGER.info("Successfully putObject into OS from filePath");
+                    } catch (ErrorResponseException e) {
+                        e.printStackTrace();
+                    } catch (InsufficientDataException e) {
+                        e.printStackTrace();
+                    } catch (InternalException e) {
+                        e.printStackTrace();
+                    } catch (InvalidKeyException e) {
+                        e.printStackTrace();
+                    } catch (InvalidResponseException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    } catch (ServerException e) {
+                        e.printStackTrace();
+                    } catch (XmlParserException e) {
+                        e.printStackTrace();
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    if (is!=null){
+                        try {
+                            is.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
 
         }else {

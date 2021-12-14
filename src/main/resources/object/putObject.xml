@@ -22,6 +22,7 @@
     <parameter name="accessKey"/>
     <parameter name="secretKey"/>
     <parameter name="fileContent"/>
+    <parameter name="filePath"/>
     <sequence>
         <class name="vn.ds.study.PutObject"/>
     </sequence>
