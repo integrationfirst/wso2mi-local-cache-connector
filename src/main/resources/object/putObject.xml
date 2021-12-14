@@ -18,6 +18,8 @@
 <template xmlns="http://ws.apache.org/ns/synapse" name="putObject">
     <parameter name="address"/>
     <parameter name="filename"/>
+    <parameter name="accessKey"/>
+    <parameter name="secretKey"/>
     
     <sequence>
         <class name="vn.ds.study.PutObject"/>

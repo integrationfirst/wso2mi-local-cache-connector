@@ -25,6 +25,28 @@
         "helpTip": "The URL of the object storage server",
         "validation": "nameWithoutSpecialCharactors"
       }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "accessKey",
+        "displayName": "Access Key",
+        "inputType": "stringOrExpression",
+        "required": "true",
+        "helpTip": "Access key",
+        "validation": "nameWithoutSpecialCharactors"
+      }
+    },
+    {
+      "type": "attribute",
+      "value": {
+        "name": "secretKey",
+        "displayName": "Address",
+        "inputType": "stringOrExpression",
+        "required": "true",
+        "helpTip": "Secrete key",
+        "validation": "nameWithoutSpecialCharactors"
+      }
     }
   ]
 }

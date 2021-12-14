@@ -17,21 +17,33 @@
  */
 package vn.ds.study;
 
+import io.minio.MinioClient;
 import org.apache.synapse.MessageContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.carbon.connector.core.AbstractConnector;
 import org.wso2.carbon.connector.core.ConnectException;
 
-public class PutObject extends AbstractConnector {
+public class PutObject extends MinioAgent {
 
     private static final Logger LOGGER= LoggerFactory.getLogger(PutObject.class);
 
     @Override
     public void connect(MessageContext messageContext) throws ConnectException {
+
+
         String address = (String) getParameter(messageContext, "address");
         String filename = (String) getParameter(messageContext, "filename");
+        String accessKey = (String) getParameter(messageContext, "accessKey");
+        String secretKey = (String) getParameter(messageContext, "secretKey");
+
+        MinioClient client = getClient(address, "minio","minio123");
         LOGGER.info("Put object {} to OS address {}", filename, address);
+
+        if (client!=null){
+            LOGGER.info("Successfully login into OS");
+        }else {
+            LOGGER.info("Failed to login into OS with access: {} and secret: {}", accessKey, secretKey);
+        }
 
     }
 }
