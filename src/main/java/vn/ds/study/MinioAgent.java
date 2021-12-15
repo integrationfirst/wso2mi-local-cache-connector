@@ -1,37 +1,36 @@
 package vn.ds.study;
 
-import io.minio.MinioClient;
 import org.apache.synapse.MessageContext;
 import org.wso2.carbon.connector.core.AbstractConnector;
 import org.wso2.carbon.connector.core.ConnectException;
 
+import io.minio.MinioClient;
+
 public abstract class MinioAgent extends AbstractConnector {
 
-    protected MinioClient getClient(String address, final String accessKey, final String secretKey){
-        MinioClient minioClient =
-                MinioClient.builder()
-                        .endpoint(address)
-                        .credentials(accessKey, secretKey)
-                        .build();
+	protected MinioClient getClient(String address, final String accessKey, final String secretKey) {
+		MinioClient minioClient = MinioClient.builder().endpoint(address).credentials(accessKey, secretKey).build();
 
-        return minioClient;
-    }
-    
-    private MessageContext context;
-    
-    @Override
-    public final void connect(final MessageContext messageContext) throws ConnectException {
-        this.context=messageContext;
-        execute(messageContext);
-    }
+		return minioClient;
+	}
 
-    protected <T> T getParameter(String parameterName, Class<T> type){
-        return (T) getParameter(context,parameterName);
-    }
-    protected String getParameterAsString(String parameterName){
-        return getParameter(parameterName,String.class);
-    }
+	private MessageContext context;
 
-    protected abstract void execute(final MessageContext messageContext) throws ConnectException;
+	@Override
+	public final void connect(final MessageContext messageContext) throws ConnectException {
+		this.context = messageContext;
+		execute(messageContext);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected <T> T getParameter(String parameterName, Class<T> type) {
+		return (T) getParameter(context, parameterName);
+	}
+
+	protected String getParameterAsString(String parameterName) {
+		return getParameter(parameterName, String.class);
+	}
+
+	protected abstract void execute(final MessageContext messageContext) throws ConnectException;
 
 }
