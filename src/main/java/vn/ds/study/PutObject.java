@@ -82,7 +82,7 @@ public class PutObject extends MinioAgent {
 				try {
 					is.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.warn("Failed to close input stream", e);
 				}
 			}
 		}
