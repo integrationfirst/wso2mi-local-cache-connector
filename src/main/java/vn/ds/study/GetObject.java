@@ -12,16 +12,24 @@
  */
 package vn.ds.study;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
 import org.apache.synapse.MessageContext;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.connector.core.ConnectException;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import io.minio.DownloadObjectArgs;
 import io.minio.GetObjectArgs;
 import io.minio.GetObjectResponse;
 import io.minio.MinioClient;
 import junit.framework.Assert;
+import vn.ds.study.utils.CompressUtils;
 
 public class GetObject extends MinioAgent {
 
@@ -50,7 +58,13 @@ public class GetObject extends MinioAgent {
 
             LOGGER.debug("Prepared arguments.");
             final GetObjectResponse getObjectResponse = client.getObject(args);
-            messageContext.setProperty("objectResult", getObjectResponse.object());
+
+            try (final InputStream in = getObjectResponse;) {
+                final ByteArrayOutputStream output = CompressUtils.decompressBytes(in);
+                JsonObject jsonObject = new JsonParser().parse(new String(output.toByteArray())).getAsJsonObject();
+                LOGGER.info("{}", jsonObject);
+                messageContext.setProperty("objectResult", jsonObject);
+            }
             LOGGER.info("Get the object and put to the objectResult property.");
         } catch (Exception e) {
             LOGGER.error("Failed to download file. Detail: ", e);
