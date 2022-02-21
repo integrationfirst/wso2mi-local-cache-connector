@@ -62,12 +62,11 @@ public class GetObject extends MinioAgent {
             try (final InputStream in = getObjectResponse;) {
                 final ByteArrayOutputStream output = CompressUtils.decompressBytes(in);
                 JsonObject jsonObject = new JsonParser().parse(new String(output.toByteArray())).getAsJsonObject();
-                LOGGER.info("{}", jsonObject);
                 messageContext.setProperty("objectResult", jsonObject);
             }
             LOGGER.info("Get the object and put to the objectResult property.");
         } catch (Exception e) {
-            LOGGER.error("Failed to download file. Detail: ", e);
+            throw new ConnectException(e,"Failed to download file. Detail: ");
         }
     }
 }
