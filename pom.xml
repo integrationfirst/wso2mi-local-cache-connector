@@ -468,16 +468,11 @@
 			</releases>
 		</repository>
 	</repositories>
-	<distributionManagement>
+    <distributionManagement>
 		<repository>
-			<id>nexus-releases</id>
-			<name>WSO2 Release Distribution Repository</name>
-			<url>http://maven.wso2.org/nexus/service/local/staging/deploy/maven2/</url>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/spsvnhub/wso2mi-minio-connector</url>
 		</repository>
-		<snapshotRepository>
-			<id>wso2.snapshots</id>
-			<name>Apache Snapshot Repository</name>
-			<url>http://maven.wso2.org/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
 	</distributionManagement>
 </project>
