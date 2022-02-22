@@ -90,8 +90,8 @@ public class PutObject extends MinioAgent {
 			return;
 		}
 		LOGGER.info("putObject result object: {}; versionId: {}", rsp.object(), rsp.versionId());
-		messageContext.getContextEntries().put("object", rsp.object());
-		messageContext.getContextEntries().put("versionId", rsp.versionId());
+		messageContext.setProperty("object", rsp.object());
+		messageContext.setProperty("versionId", rsp.versionId());
 	}
 
 	private ObjectWriteResponse putObject(final InputStream is, final MinioClient client, final String bucket,
