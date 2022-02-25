@@ -3,10 +3,10 @@
  - getObject
 ## Compatability
 
-Connector Version | Minio Version
-----|----
-1.0.4 | 
-1.0.5 |
+Connector Version | Minio Version | AWS S3 SDK Version
+----|----|----
+1.0.4 | 8.3.4 |
+1.0.5 | 8.3.4 |
 
 ## Get Started
 To be able to use the connector, you have to download ZIP package and import to WSO2 EI Studio
