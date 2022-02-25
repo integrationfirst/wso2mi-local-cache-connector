@@ -8,11 +8,15 @@ import io.minio.MinioClient;
 
 public abstract class MinioAgent extends AbstractConnector {
 
-	protected MinioClient getClient(String address, final String accessKey, final String secretKey) {
-		MinioClient minioClient = MinioClient.builder().endpoint(address).credentials(accessKey, secretKey).build();
-
-		return minioClient;
-	}
+    private MinioClient minioClient;
+    
+    protected MinioClient getClient(String address, final String accessKey, final String secretKey) {
+        if (minioClient == null) {
+            MinioClient minioClient = MinioClient.builder().endpoint(address).credentials(accessKey, secretKey).build();
+            return minioClient;
+        }
+        return minioClient;
+    }
 
 	private MessageContext context;
 
