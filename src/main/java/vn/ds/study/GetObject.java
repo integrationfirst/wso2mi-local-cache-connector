@@ -13,7 +13,7 @@
 package vn.ds.study;
 
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.Base64;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.soap.SOAPBody;
@@ -64,11 +64,13 @@ public class GetObject extends MinioAgent {
             try (final InputStream in = getObjectResponse;) {
                 final byte[] output = IOUtils.toByteArray(in);
 
+                final String base64Output = Base64.getEncoder().encodeToString(output);
+
                 final OMElement resultElement = OMElementUtils.createOMElement("objectResult", null);
-                final OMElement binaryElement = OMElementUtils.createOMElement("binaryObject", output);
+                final OMElement binaryElement = OMElementUtils.createOMElement("binaryObject", base64Output);
 
                 resultElement.addChild(binaryElement);
-                
+
                 final SOAPBody soapBody = messageContext.getEnvelope().getBody();
                 JsonUtil.removeJsonPayload(((Axis2MessageContext) messageContext).getAxis2MessageContext());
                 ((Axis2MessageContext) messageContext).getAxis2MessageContext().removeProperty(
