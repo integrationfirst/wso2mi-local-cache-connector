@@ -65,7 +65,7 @@ public class GetObject extends MinioAgent {
                 final byte[] output = IOUtils.toByteArray(in);
 
                 final String base64Output = Base64.getEncoder().encodeToString(output);
-
+                
                 final OMElement resultElement = OMElementUtils.createOMElement("objectResult", null);
                 final OMElement binaryElement = OMElementUtils.createOMElement("binaryObject", base64Output);
 
