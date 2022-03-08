@@ -8,6 +8,7 @@ Connector Version | Minio Version | AWS S3 SDK Version
 ----|----|----
 1.0.4 | 8.3.4 |
 1.0.5 | 8.3.4 |
+1.0.6 | 8.3.4 |
 
 ## Get Started
 ---
