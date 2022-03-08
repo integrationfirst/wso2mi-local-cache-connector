@@ -26,7 +26,7 @@ public final class CompressUtils {
 
     private CompressUtils() {
     }
-    
+
     public static ByteArrayOutputStream decompressBytes(final InputStream input) throws IOException {
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
         final ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
