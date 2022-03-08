@@ -21,8 +21,6 @@
     <parameter name="filename"/>
     <parameter name="accessKey"/>
     <parameter name="secretKey"/>
-    <parameter name="fileContent"/>
-    <parameter name="filePath"/>
     <sequence>
         <class name="vn.ds.study.GetObject"/>
     </sequence>
