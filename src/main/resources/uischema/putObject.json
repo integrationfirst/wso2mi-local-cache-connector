@@ -29,11 +29,11 @@
     {
       "type": "attribute",
       "value": {
-        "name": "filename",
-        "displayName": "Filename",
+        "name": "objectKey",
+        "displayName": "Object Key",
         "inputType": "stringOrExpression",
         "required": "true",
-        "helpTip": "The name of the object",
+        "helpTip": "The absolute path to the object",
         "validation": "nameWithoutSpecialCharactors"
       }
     },
@@ -52,30 +52,10 @@
       "type": "attribute",
       "value": {
         "name": "secretKey",
-        "displayName": "Address",
+        "displayName": "Access Secret",
         "inputType": "stringOrExpression",
         "required": "true",
         "helpTip": "Secrete key",
-        "validation": "nameWithoutSpecialCharactors"
-      }
-    },{
-      "type": "attribute",
-      "value": {
-        "name": "fileContent",
-        "displayName": "File Content",
-        "inputType": "stringOrExpression",
-        "required": "false",
-        "helpTip": "File Content",
-        "validation": "nameWithoutSpecialCharactors"
-      }
-    },{
-      "type": "attribute",
-      "value": {
-        "name": "filePath",
-        "displayName": "File Path",
-        "inputType": "stringOrExpression",
-        "required": "false",
-        "helpTip": "Path to local file that expected to be upload to OS",
         "validation": "nameWithoutSpecialCharactors"
       }
     }
