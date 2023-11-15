@@ -69,10 +69,15 @@ public class PutObject extends MinioAgent {
                 .map(DataHandler.class::cast)
                 .map(this::inputStream)
                 .map(is -> putObject(is, client, bucket, objectKey))
-                .ifPresent(res -> {
-                    context.getProperties()
-                           .put("putObjectResult", "SUCCESS");
+                .map(res -> {
+                    Optional.ofNullable(res)
+                            .map(ObjectWriteResponse::object)
+                            .map(o -> "Processed object " + o)
+                            .ifPresent(log::info);
+                    
+                    messageContext.setProperty("putObjectResult", "SUCCESS");
                     log.info("Put object {} to OS successfully", objectKey);
+                    return res;
                 });
         log.info("Complete process to put object {} to OS", objectKey);
     }
@@ -88,22 +93,18 @@ public class PutObject extends MinioAgent {
     }
 
     private ObjectWriteResponse putObject(final InputStream is, final MinioClient client, final String bucket,
-                                          final String filename) {
-        try {
+                                          final String objectKey) {
+
+        try (is) {
+            log.info("Putting object {}", objectKey);
             return client.putObject(
                     PutObjectArgs.builder()
                                  .bucket(bucket)
-                                 .object(filename)
+                                 .object(objectKey)
                                  .stream(is, -1, 10485760)
                                  .build());
         } catch (Exception e) {
             log.error("Failed to execute putObject", e);
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                log.error("Failed to close input stream", e);
-            }
         }
 
         return null;

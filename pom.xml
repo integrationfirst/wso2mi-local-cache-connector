@@ -47,6 +47,7 @@
         <rampart.wso2.version>1.6.1.wso2v18</rampart.wso2.version>
         <skip-tests>true</skip-tests>
         <lombok.version>1.16.22</lombok.version>
+        <java.version>11</java.version>
     </properties>
 
     <dependencies>
@@ -218,8 +219,8 @@
                 <version>3.7.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
