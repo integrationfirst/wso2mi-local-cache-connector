@@ -16,13 +16,13 @@
    specific language governing permissions and limitations
    under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>vn.ds.study</groupId>
     <artifactId>wso2mi-minio-connector</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.7</version>
     <packaging>jar</packaging>
     <name>wso2mi-minio-connector</name>
     <url>https://wso2.org</url>
@@ -46,6 +46,8 @@
         <rampart.apache.version>1.6.1-wso2v18</rampart.apache.version>
         <rampart.wso2.version>1.6.1.wso2v18</rampart.wso2.version>
         <skip-tests>true</skip-tests>
+        <lombok.version>1.16.22</lombok.version>
+        <java.version>11</java.version>
     </properties>
 
     <dependencies>
@@ -54,6 +56,12 @@
             <artifactId>minio</artifactId>
             <version>${minio.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.synapse</groupId>
@@ -211,8 +219,8 @@
                 <version>3.7.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -375,7 +383,7 @@
                                     <outputDirectory>target/connector/dependencies</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>com.google.guava </groupId>
+                                    <groupId>com.google.guava</groupId>
                                     <artifactId>guava</artifactId>
                                     <version>30.1.1-jre</version>
                                     <type>jar</type>
@@ -450,10 +458,10 @@
         </repository>
     </repositories>
     <distributionManagement>
-		<repository>
-			<id>github</id>
-			<name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/spsvnhub/wso2mi-minio-connector</url>
-		</repository>
-	</distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/spsvnhub/wso2mi-minio-connector</url>
+        </repository>
+    </distributionManagement>
 </project>

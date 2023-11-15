@@ -17,92 +17,96 @@
  */
 package vn.ds.study;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.synapse.MessageContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.wso2.carbon.connector.core.ConnectException;
-
 import io.minio.MinioClient;
 import io.minio.ObjectWriteResponse;
 import io.minio.PutObjectArgs;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.axiom.om.OMContainer;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMText;
+import org.apache.axiom.soap.SOAPEnvelope;
+import org.apache.synapse.MessageContext;
+import org.apache.synapse.core.axis2.Axis2MessageContext;
+import org.wso2.carbon.connector.core.ConnectException;
 
+import javax.activation.DataHandler;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Optional;
+
+
+@Slf4j
 public class PutObject extends MinioAgent {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PutObject.class);
+    @Override
+    public void execute(MessageContext messageContext) throws ConnectException {
 
-	@Override
-	public void execute(MessageContext messageContext) throws ConnectException {
+        Axis2MessageContext context = (Axis2MessageContext) messageContext;
 
-		String address = getParameterAsString("address");
-		String bucket = getParameterAsString("bucket");
-		String filename = getParameterAsString("filename");
-		String accessKey = getParameterAsString("accessKey");
-		String secretKey = getParameterAsString("secretKey");
+        String address = getParameterAsString("address");
+        String bucket = getParameterAsString("bucket");
+        String objectKey = getParameterAsString("objectKey");
+        String accessKey = getParameterAsString("accessKey");
+        String secretKey = getParameterAsString("secretKey");
 
-		LOGGER.info("Put object {} to OS address {}", filename, address);
-		MinioClient client = getClient(address, accessKey, secretKey);
+        log.info("Put object {} to OS address {}", objectKey, address);
+        MinioClient client = getClient(address, accessKey, secretKey);
 
-		if (client == null) {
-			LOGGER.info("Failed to login into OS with access: {} and secret: {}", accessKey, secretKey);
-			return;
-		}
+        if (client == null) {
+            log.info("Failed to login into OS with access: {} and secret: {}", accessKey, secretKey);
+            return;
+        }
 
-		LOGGER.info("Successfully login into OS");
-		String fileContent = getParameterAsString("fileContent");
-		String filePath = getParameterAsString("filePath");
+        log.info("Successfully login into OS");
 
-		InputStream is = null;
-		ObjectWriteResponse rsp = null;
-		
-		try {
-			if (!StringUtils.isEmpty(fileContent)) {
+        Optional.of(context)
+                .map(Axis2MessageContext::getEnvelope)
+                .map(SOAPEnvelope::getBody)
+                .map(OMElement::getFirstElement)
+                .map(OMContainer::getFirstOMChild)
+                .map(OMText.class::cast)
+                .map(OMText::getDataHandler)
+                .map(DataHandler.class::cast)
+                .map(this::inputStream)
+                .map(is -> putObject(is, client, bucket, objectKey))
+                .map(res -> {
+                    Optional.ofNullable(res)
+                            .map(ObjectWriteResponse::object)
+                            .map(o -> "Processed object " + o)
+                            .ifPresent(log::info);
+                    
+                    messageContext.setProperty("putObjectResult", "SUCCESS");
+                    log.info("Put object {} to OS successfully", objectKey);
+                    return res;
+                });
+        log.info("Complete process to put object {} to OS", objectKey);
+    }
 
-				is = new ByteArrayInputStream(fileContent.getBytes());
-				rsp = putObject(is, client, bucket, filename);
-				LOGGER.info("Successfully putObject into OS");
-			} else if (!StringUtils.isEmpty(filePath)) {
+    private InputStream inputStream(DataHandler dataHandler) {
+        try {
+            return dataHandler.getInputStream();
+        } catch (IOException e) {
+            log.error("Failed to obtain input stream from Envelope element", e);
+        }
 
-				LOGGER.info("Put file {} to OS", filePath);
-				is = new FileInputStream(new File(filePath));
-				rsp = putObject(is, client, bucket, filename);
-				LOGGER.info("Successfully putObject into OS from filePath");
-			}
-		} catch (FileNotFoundException e) {
-			LOGGER.error("Could not find {}", filePath, e);
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-					LOGGER.warn("Failed to close input stream", e);
-				}
-			}
-		}
-		if (rsp == null) {
-			return;
-		}
-		LOGGER.info("putObject result object: {}; versionId: {}", rsp.object(), rsp.versionId());
-		messageContext.getContextEntries().put("object", rsp.object());
-		messageContext.getContextEntries().put("versionId", rsp.versionId());
-	}
+        return null;
+    }
 
-	private ObjectWriteResponse putObject(final InputStream is, final MinioClient client, final String bucket,
-			final String filename) {
-		try {
-			return client.putObject(
-					PutObjectArgs.builder().bucket(bucket).object(filename).stream(is, -1, 10485760).build());
-		} catch (Exception e) {
-			LOGGER.error("Failed to execute putObject", e);
-		}
+    private ObjectWriteResponse putObject(final InputStream is, final MinioClient client, final String bucket,
+                                          final String objectKey) {
 
-		return null;
-	}
+        try (is) {
+            log.info("Putting object {}", objectKey);
+            return client.putObject(
+                    PutObjectArgs.builder()
+                                 .bucket(bucket)
+                                 .object(objectKey)
+                                 .stream(is, -1, 10485760)
+                                 .build());
+        } catch (Exception e) {
+            log.error("Failed to execute putObject", e);
+        }
+
+        return null;
+    }
 }
