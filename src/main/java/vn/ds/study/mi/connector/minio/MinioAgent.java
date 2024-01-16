@@ -1,4 +1,4 @@
-package vn.ds.study;
+package vn.ds.study.mi.connector.minio;
 
 import io.minio.MinioClient;
 import org.apache.synapse.MessageContext;

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package vn.ds.study;
+package vn.ds.study.mi.connector.minio;
 
 import io.minio.MinioClient;
 import io.minio.ObjectWriteResponse;
@@ -74,7 +74,7 @@ public class PutObject extends MinioAgent {
                             .map(ObjectWriteResponse::object)
                             .map(o -> "Processed object " + o)
                             .ifPresent(log::info);
-                    
+
                     messageContext.setProperty("putObjectResult", "SUCCESS");
                     log.info("Put object {} to OS successfully", objectKey);
                     return res;

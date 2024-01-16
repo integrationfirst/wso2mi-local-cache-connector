@@ -22,6 +22,6 @@
     <parameter name="accessKey"/>
     <parameter name="secretKey"/>
     <sequence>
-        <class name="vn.ds.study.GetObject"/>
+        <class name="vn.ds.study.mi.connector.minio.GetObject"/>
     </sequence>
 </template>

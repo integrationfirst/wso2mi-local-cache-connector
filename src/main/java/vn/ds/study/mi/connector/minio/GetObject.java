@@ -10,11 +10,13 @@
  * Swiss Post Solution.
  * Floor 4-5-8, ICT Tower, Quang Trung Software City
  */
-package vn.ds.study;
+package vn.ds.study.mi.connector.minio;
 
-import java.io.InputStream;
-import java.util.Base64;
-
+import io.minio.DownloadObjectArgs;
+import io.minio.GetObjectArgs;
+import io.minio.GetObjectResponse;
+import io.minio.MinioClient;
+import junit.framework.Assert;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.soap.SOAPBody;
 import org.apache.commons.io.IOUtils;
@@ -25,13 +27,10 @@ import org.apache.synapse.transport.passthru.PassThroughConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.connector.core.ConnectException;
+import vn.ds.study.mi.connector.minio.utils.OMElementUtils;
 
-import io.minio.DownloadObjectArgs;
-import io.minio.GetObjectArgs;
-import io.minio.GetObjectResponse;
-import io.minio.MinioClient;
-import junit.framework.Assert;
-import vn.ds.study.utils.OMElementUtils;
+import java.io.InputStream;
+import java.util.Base64;
 
 public class GetObject extends MinioAgent {
 
@@ -52,8 +51,11 @@ public class GetObject extends MinioAgent {
 
             Assert.assertNotNull("Minio client initialization failed", client);
 
-            final DownloadObjectArgs downloadObjectArgs = DownloadObjectArgs.builder().bucket(bucket).object(
-                filename).build();
+            final DownloadObjectArgs downloadObjectArgs = DownloadObjectArgs.builder()
+                                                                            .bucket(bucket)
+                                                                            .object(
+                                                                                    filename)
+                                                                            .build();
             LOGGER.info("Prepared download object arguments.");
 
             final GetObjectArgs args = new GetObjectArgs(downloadObjectArgs);
@@ -61,20 +63,23 @@ public class GetObject extends MinioAgent {
             LOGGER.debug("Prepared arguments.");
             final GetObjectResponse getObjectResponse = client.getObject(args);
 
-            try (final InputStream in = getObjectResponse;) {
+            try (final InputStream in = getObjectResponse) {
                 final byte[] output = IOUtils.toByteArray(in);
 
-                final String base64Output = Base64.getEncoder().encodeToString(output);
-                
+                final String base64Output = Base64.getEncoder()
+                                                  .encodeToString(output);
+
                 final OMElement resultElement = OMElementUtils.createOMElement("objectResult", null);
                 final OMElement binaryElement = OMElementUtils.createOMElement("binaryObject", base64Output);
 
                 resultElement.addChild(binaryElement);
 
-                final SOAPBody soapBody = messageContext.getEnvelope().getBody();
+                final SOAPBody soapBody = messageContext.getEnvelope()
+                                                        .getBody();
                 JsonUtil.removeJsonPayload(((Axis2MessageContext) messageContext).getAxis2MessageContext());
-                ((Axis2MessageContext) messageContext).getAxis2MessageContext().removeProperty(
-                    PassThroughConstants.NO_ENTITY_BODY);
+                ((Axis2MessageContext) messageContext).getAxis2MessageContext()
+                                                      .removeProperty(
+                                                              PassThroughConstants.NO_ENTITY_BODY);
 
                 soapBody.addChild(resultElement);
             }
