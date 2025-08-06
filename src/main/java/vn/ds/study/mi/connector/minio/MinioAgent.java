@@ -16,6 +16,14 @@ public abstract class MinioAgent extends AbstractConnector {
                           .build();
     }
 
+    protected MinioClient getClient(String address, String region, final String accessKey, final String secretKey) {
+        return MinioClient.builder()
+                          .endpoint(address)
+                          .region(region)
+                          .credentials(accessKey, secretKey)
+                          .build();
+    }
+
     @Override
     public final void connect(final MessageContext messageContext) throws ConnectException {
         this.context = messageContext;

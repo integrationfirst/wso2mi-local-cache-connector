@@ -22,10 +22,15 @@
             <file>putObject.xml</file>
             <description>Method to put a particular object to minio</description>
         </component>
-        
+
         <component name="getObject">
             <file>getObject.xml</file>
             <description>Method to get a particular object from minio</description>
+        </component>
+
+        <component name="listObjects">
+            <file>listObjects.xml</file>
+            <description>Method to list objects</description>
         </component>
     </subComponents>
 </component>
