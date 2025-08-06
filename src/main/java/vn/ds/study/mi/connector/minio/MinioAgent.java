@@ -1,4 +1,4 @@
-package vn.ds.study;
+package vn.ds.study.mi.connector.minio;
 
 import io.minio.MinioClient;
 import org.apache.synapse.MessageContext;
@@ -12,6 +12,14 @@ public abstract class MinioAgent extends AbstractConnector {
     protected MinioClient getClient(String address, final String accessKey, final String secretKey) {
         return MinioClient.builder()
                           .endpoint(address)
+                          .credentials(accessKey, secretKey)
+                          .build();
+    }
+
+    protected MinioClient getClient(String address, String region, final String accessKey, final String secretKey) {
+        return MinioClient.builder()
+                          .endpoint(address)
+                          .region(region)
                           .credentials(accessKey, secretKey)
                           .build();
     }
