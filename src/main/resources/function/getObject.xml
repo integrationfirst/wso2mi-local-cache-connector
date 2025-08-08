@@ -16,11 +16,7 @@
    under the License.
 -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="getObject">
-    <parameter name="address"/>
-    <parameter name="bucket"/>
-    <parameter name="filename"/>
-    <parameter name="accessKey"/>
-    <parameter name="secretKey"/>
+    <parameter name="cachedKey"/>
     <sequence>
         <class name="vn.ds.study.mi.connector.minio.GetObject"/>
     </sequence>

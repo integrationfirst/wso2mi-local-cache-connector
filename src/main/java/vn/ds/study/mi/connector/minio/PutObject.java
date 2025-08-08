@@ -17,9 +17,6 @@
  */
 package vn.ds.study.mi.connector.minio;
 
-import io.minio.MinioClient;
-import io.minio.ObjectWriteResponse;
-import io.minio.PutObjectArgs;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.axiom.om.OMContainer;
 import org.apache.axiom.om.OMElement;
@@ -27,38 +24,27 @@ import org.apache.axiom.om.OMText;
 import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.synapse.MessageContext;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
+import org.infinispan.Cache;
 import org.wso2.carbon.connector.core.ConnectException;
-import vn.ds.study.mi.connector.minio.utils.MinioFactory;
+import vn.ds.study.mi.connector.minio.utils.CacheFactory;
 
 import javax.activation.DataHandler;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Optional;
 
 
 @Slf4j
-public class PutObject extends MinioFunction {
+public class PutObject extends AbstractFunction {
 
     @Override
     public void execute(MessageContext messageContext) throws ConnectException {
 
         Axis2MessageContext context = (Axis2MessageContext) messageContext;
 
-        String address = getParameterAsString("address");
-        String bucket = getParameterAsString("bucket");
-        String objectKey = getParameterAsString("objectKey");
-        String accessKey = getParameterAsString("accessKey");
-        String secretKey = getParameterAsString("secretKey");
+        final String key = getParameterAsString("cachedKey");
+        final Cache cache = CacheFactory.getCache("sample-cache");
 
-        log.info(String.format("Get the minio client to address %s region %s", address, MinioFactory.DEFAULT_REGION));
-        MinioClient client = MinioFactory.getClient(address, accessKey, secretKey);
-
-        if (client == null) {
-            log.error(String.format("Object {} Failed to obtain the minio client to %s and region %s", objectKey, address, MinioFactory.DEFAULT_REGION));
-            return;
-        }
-
-        log.info("Successfully login into OS");
+        log.info("Put object key = {}", key);
 
         Optional.of(context)
                 .map(Axis2MessageContext::getEnvelope)
@@ -69,43 +55,18 @@ public class PutObject extends MinioFunction {
                 .map(OMText::getDataHandler)
                 .map(DataHandler.class::cast)
                 .map(this::inputStream)
-                .map(is -> putObject(is, client, bucket, objectKey))
-                .map(res -> {
-                    Optional.ofNullable(res)
-                            .map(ObjectWriteResponse::object)
-                            .map(o -> "Processed object " + o)
-                            .ifPresent(log::info);
-
-                    messageContext.setProperty("putObjectResult", "SUCCESS");
-                    log.info("Put object {} to OS successfully", objectKey);
-                    return res;
+                .map(is -> cache.put(key, is))
+                .ifPresent(res -> {
+                    log.info("Put object successfully {}", key);
                 });
-        log.info("Complete process to put object {} to OS", objectKey);
     }
 
-    private InputStream inputStream(DataHandler dataHandler) {
+    private byte[] inputStream(DataHandler dataHandler) {
         try {
-            return dataHandler.getInputStream();
+            return dataHandler.getInputStream()
+                              .readAllBytes();
         } catch (IOException e) {
             log.error("Failed to obtain input stream from Envelope element", e);
-        }
-
-        return null;
-    }
-
-    private ObjectWriteResponse putObject(final InputStream is, final MinioClient client, final String bucket,
-                                          final String objectKey) {
-
-        try (is) {
-            log.info("Putting object {}", objectKey);
-            return client.putObject(
-                    PutObjectArgs.builder()
-                                 .bucket(bucket)
-                                 .object(objectKey)
-                                 .stream(is, -1, 10485760)
-                                 .build());
-        } catch (Exception e) {
-            log.error("Failed to execute putObject", e);
         }
 
         return null;

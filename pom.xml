@@ -21,16 +21,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>vn.ds.study</groupId>
-    <artifactId>wso2mi-minio-connector</artifactId>
+    <artifactId>wso2mi-local-cache-connector</artifactId>
     <version>1.1.19</version>
     <packaging>jar</packaging>
-    <name>wso2mi-minio-connector</name>
+    <name>wso2mi-local-cache-connector</name>
     <url>https://wso2.org</url>
 
     <properties>
         <connector.name>minio</connector.name>
         <connector.version>${version}</connector.version>
-        <minio.version>8.3.4</minio.version>
         <integration.base.version>1.0.2</integration.base.version>
         <product.ei.version>6.1.1</product.ei.version>
         <carbon.kernel.version>4.4.17</carbon.kernel.version>
@@ -48,14 +47,28 @@
         <skip-tests>true</skip-tests>
         <lombok.version>1.16.22</lombok.version>
         <java.version>11</java.version>
+        <infinispan.version>15.0.0.Final</infinispan.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.infinispan</groupId>
+                <artifactId>infinispan-bom</artifactId>
+                <version>${infinispan.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
-            <groupId>io.minio</groupId>
-            <artifactId>minio</artifactId>
-            <version>${minio.version}</version>
-            <scope>compile</scope>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-cachestore-rocksdb</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -325,9 +338,15 @@
                                     <outputDirectory>target/connector/dependencies</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
-                                    <groupId>io.minio</groupId>
-                                    <artifactId>minio</artifactId>
-                                    <version>${minio.version}</version>
+                                    <groupId>org.infinispan</groupId>
+                                    <artifactId>infinispan-core</artifactId>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>target/connector/dependencies</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.infinispan</groupId>
+                                    <artifactId>infinispan-cachestore-rocksdb</artifactId>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                     <outputDirectory>target/connector/dependencies</outputDirectory>
@@ -467,7 +486,7 @@
         <repository>
             <id>github</id>
             <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/integrationfirst/wso2mi-minio-connector</url>
+            <url>https://maven.pkg.github.com/integrationfirst/wso2mi-local-cache-connector</url>
         </repository>
     </distributionManagement>
 </project>

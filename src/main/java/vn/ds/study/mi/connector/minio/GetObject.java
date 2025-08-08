@@ -12,77 +12,25 @@
  */
 package vn.ds.study.mi.connector.minio;
 
-import io.minio.DownloadObjectArgs;
-import io.minio.GetObjectArgs;
-import io.minio.GetObjectResponse;
-import io.minio.MinioClient;
-import junit.framework.Assert;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.soap.SOAPBody;
-import org.apache.commons.io.IOUtils;
 import org.apache.synapse.MessageContext;
-import org.apache.synapse.commons.json.JsonUtil;
-import org.apache.synapse.core.axis2.Axis2MessageContext;
-import org.apache.synapse.transport.passthru.PassThroughConstants;
+import org.infinispan.Cache;
 import org.wso2.carbon.connector.core.ConnectException;
-import vn.ds.study.mi.connector.minio.utils.MinioFactory;
-import vn.ds.study.mi.connector.minio.utils.OMElementUtils;
-
-import java.io.InputStream;
-import java.util.Base64;
+import vn.ds.study.mi.connector.minio.utils.CacheFactory;
 
 @Slf4j
-public class GetObject extends MinioFunction {
+public class GetObject extends AbstractFunction {
 
     @Override
     protected void execute(final MessageContext messageContext) throws ConnectException {
 
-        final String address = getParameterAsString("address");
-        final String bucket = getParameterAsString("bucket");
-        final String filename = getParameterAsString("filename");
-        final String accessKey = getParameterAsString("accessKey");
-        final String secretKey = getParameterAsString("secretKey");
+        final String key = getParameterAsString("cachedKey");
         try {
-            final MinioClient client = MinioFactory.getClient(address, accessKey, secretKey);
+            final Cache cache = CacheFactory.getCache("sample-cache");
 
-            log.info("Get a minio client {} region {}", address, MinioFactory.DEFAULT_REGION);
-
-            Assert.assertNotNull("Minio client initialization failed", client);
-
-            final DownloadObjectArgs downloadObjectArgs = DownloadObjectArgs.builder()
-                                                                            .bucket(bucket)
-                                                                            .object(
-                                                                                    filename)
-                                                                            .build();
-            log.info("Prepared download object arguments.");
-
-            final GetObjectArgs args = new GetObjectArgs(downloadObjectArgs);
-
-            log.debug("Prepared arguments.");
-            final GetObjectResponse getObjectResponse = client.getObject(args);
-
-            try (final InputStream in = getObjectResponse) {
-                final byte[] output = IOUtils.toByteArray(in);
-
-                final String base64Output = Base64.getEncoder()
-                                                  .encodeToString(output);
-
-                final OMElement resultElement = OMElementUtils.createOMElement("objectResult", null);
-                final OMElement binaryElement = OMElementUtils.createOMElement("binaryObject", base64Output);
-
-                resultElement.addChild(binaryElement);
-
-                final SOAPBody soapBody = messageContext.getEnvelope()
-                                                        .getBody();
-                JsonUtil.removeJsonPayload(((Axis2MessageContext) messageContext).getAxis2MessageContext());
-                ((Axis2MessageContext) messageContext).getAxis2MessageContext()
-                                                      .removeProperty(
-                                                              PassThroughConstants.NO_ENTITY_BODY);
-
-                soapBody.addChild(resultElement);
-            }
-            log.info("Get the object and put to the objectResult property.");
+            log.debug("Getting the cache by key = {}", key);
+            messageContext.setProperty("cachedValue", cache.get(key));
+            log.info("Get the object and put to the cachedValue property.");
         } catch (Exception e) {
             log.error("", e);
             throw new ConnectException(e, "Failed to download file. Detail: ");

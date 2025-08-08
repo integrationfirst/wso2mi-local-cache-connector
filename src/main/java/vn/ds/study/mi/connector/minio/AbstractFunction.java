@@ -4,7 +4,7 @@ import org.apache.synapse.MessageContext;
 import org.wso2.carbon.connector.core.AbstractConnector;
 import org.wso2.carbon.connector.core.ConnectException;
 
-public abstract class MinioFunction extends AbstractConnector {
+public abstract class AbstractFunction extends AbstractConnector {
 
     private MessageContext context;
 

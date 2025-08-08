@@ -16,7 +16,7 @@
    specific language governing permissions and limitations
    under the License.
 -->
-<component name="object" type="synapse/template">
+<component name="function" type="synapse/template">
     <subComponents>
         <component name="putObject">
             <file>putObject.xml</file>
@@ -26,11 +26,6 @@
         <component name="getObject">
             <file>getObject.xml</file>
             <description>Method to get a particular object from minio</description>
-        </component>
-
-        <component name="listObjects">
-            <file>listObjects.xml</file>
-            <description>Method to list objects</description>
         </component>
     </subComponents>
 </component>

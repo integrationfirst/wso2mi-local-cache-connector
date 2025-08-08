@@ -17,9 +17,9 @@
    under the License.
 -->
 <connector>
-    <component name="minio" package="org.wso2.carbon.connector">
+    <component name="inf" package="org.wso2.carbon.connector">
         <dependency component="config"/>
-        <dependency component="object"/>
+        <dependency component="function"/>
         <description>WSO2 MI Minio Connector</description>
     </component>
     <displayName>ADI</displayName>
