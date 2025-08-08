@@ -17,6 +17,7 @@ import io.minio.GetObjectArgs;
 import io.minio.GetObjectResponse;
 import io.minio.MinioClient;
 import junit.framework.Assert;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.soap.SOAPBody;
 import org.apache.commons.io.IOUtils;
@@ -24,17 +25,15 @@ import org.apache.synapse.MessageContext;
 import org.apache.synapse.commons.json.JsonUtil;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.apache.synapse.transport.passthru.PassThroughConstants;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.carbon.connector.core.ConnectException;
+import vn.ds.study.mi.connector.minio.utils.MinioFactory;
 import vn.ds.study.mi.connector.minio.utils.OMElementUtils;
 
 import java.io.InputStream;
 import java.util.Base64;
 
-public class GetObject extends MinioAgent {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GetObject.class);
+@Slf4j
+public class GetObject extends MinioFunction {
 
     @Override
     protected void execute(final MessageContext messageContext) throws ConnectException {
@@ -45,9 +44,9 @@ public class GetObject extends MinioAgent {
         final String accessKey = getParameterAsString("accessKey");
         final String secretKey = getParameterAsString("secretKey");
         try {
-            final MinioClient client = getClient(address, accessKey, secretKey);
+            final MinioClient client = MinioFactory.getClient(address, accessKey, secretKey);
 
-            LOGGER.debug("Created a minio client. {}", client);
+            log.info("Get a minio client {} region {}", address, MinioFactory.DEFAULT_REGION);
 
             Assert.assertNotNull("Minio client initialization failed", client);
 
@@ -56,11 +55,11 @@ public class GetObject extends MinioAgent {
                                                                             .object(
                                                                                     filename)
                                                                             .build();
-            LOGGER.info("Prepared download object arguments.");
+            log.info("Prepared download object arguments.");
 
             final GetObjectArgs args = new GetObjectArgs(downloadObjectArgs);
 
-            LOGGER.debug("Prepared arguments.");
+            log.debug("Prepared arguments.");
             final GetObjectResponse getObjectResponse = client.getObject(args);
 
             try (final InputStream in = getObjectResponse) {
@@ -83,9 +82,9 @@ public class GetObject extends MinioAgent {
 
                 soapBody.addChild(resultElement);
             }
-            LOGGER.info("Get the object and put to the objectResult property.");
+            log.info("Get the object and put to the objectResult property.");
         } catch (Exception e) {
-            LOGGER.error("", e);
+            log.error("", e);
             throw new ConnectException(e, "Failed to download file. Detail: ");
         }
     }

@@ -20,6 +20,7 @@ import io.minio.messages.Item;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.synapse.MessageContext;
 import org.wso2.carbon.connector.core.ConnectException;
+import vn.ds.study.mi.connector.minio.utils.MinioFactory;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class ListObjects extends MinioAgent {
+public class ListObjects extends MinioFunction {
 
     private int parseInt(String intString) {
         try {
@@ -53,7 +54,7 @@ public class ListObjects extends MinioAgent {
             final String maxString = getParameterAsString("max");
             final int max = parseInt(maxString);
 
-            final MinioClient client = getClient(address, region, accessKey, secretKey);
+            final MinioClient client = MinioFactory.getClient(address, region, accessKey, secretKey);
 
             log.info("Created a minio client {} region {}", address, region);
 
