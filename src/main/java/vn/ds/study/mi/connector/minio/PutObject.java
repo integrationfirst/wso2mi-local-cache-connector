@@ -28,6 +28,7 @@ import org.apache.axiom.soap.SOAPEnvelope;
 import org.apache.synapse.MessageContext;
 import org.apache.synapse.core.axis2.Axis2MessageContext;
 import org.wso2.carbon.connector.core.ConnectException;
+import vn.ds.study.mi.connector.minio.utils.MinioFactory;
 
 import javax.activation.DataHandler;
 import java.io.IOException;
@@ -36,7 +37,7 @@ import java.util.Optional;
 
 
 @Slf4j
-public class PutObject extends MinioAgent {
+public class PutObject extends MinioFunction {
 
     @Override
     public void execute(MessageContext messageContext) throws ConnectException {
@@ -49,11 +50,11 @@ public class PutObject extends MinioAgent {
         String accessKey = getParameterAsString("accessKey");
         String secretKey = getParameterAsString("secretKey");
 
-        log.info("Put object {} to OS address {}", objectKey, address);
-        MinioClient client = getClient(address, accessKey, secretKey);
+        log.info(String.format("Get the minio client to address %s region %s", address, MinioFactory.DEFAULT_REGION));
+        MinioClient client = MinioFactory.getClient(address, accessKey, secretKey);
 
         if (client == null) {
-            log.info("Failed to login into OS with access: {} and secret: {}", accessKey, secretKey);
+            log.error(String.format("Object {} Failed to obtain the minio client to %s and region %s", objectKey, address, MinioFactory.DEFAULT_REGION));
             return;
         }
 
